@@ -1,0 +1,218 @@
+[
+    {
+        "teamName": "AMG Mercedes",
+        "year": 2024,
+        "headQuarters": "London, UK",
+        "teamPrincipal": "Toto Wolf",
+        "constructorsChampionshipWins": 3,
+        "budget": {
+            "totalBudget": 145000000,
+            "expenses": [
+                {
+                    "category": "Car Development",
+                    "amount": 50000000,
+                    "approvalStatus": "Approved",
+                    "expenseDate": "2024-01-15",
+                    "subCategory": [
+                        {
+                            "name": "Aerodynamics",
+                            "amount": 20000000
+                        },
+                        {
+                            "name": "Engine",
+                            "amount": 15000000
+                        },
+                        {
+                            "name": "Chassis",
+                            "amount": 15000000
+                        }
+                    ]
+                },
+                {
+                    "category": "Personnel",
+                    "amount": 60000000,
+                    "approvalStatus": "Pending",
+                    "expenseDate": "2024-02-01",
+                    "subCategory": [
+                        {
+                            "name": "Driver",
+                            "amount": 25000000
+                        },
+                        {
+                            "name": "Engineer",
+                            "amount": 20000000
+                        },
+                        {
+                            "name": "Pit Crew",
+                            "amount": 15000000
+                        }
+                    ]
+                },
+                {
+                    "category": "Operations",
+                    "amount": 35000000,
+                    "approvalStatus": "Approved",
+                    "expenseDate": "2024-03-10",
+                    "subCategory": [
+                        {
+                            "name": "Logistics",
+                            "amount": 15000000
+                        },
+                        {
+                            "name": "Marketing",
+                            "amount": 10000000
+                        },
+                        {
+                            "name": "Travel",
+                            "amount": 10000000
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "teamName": "Red Bull Racing",
+        "year": 2024,
+        "headQuarters": "Milton Keynes, UK",
+        "teamPrincipal": "Christian Horner",
+        "constructorsChampionshipWins": 5,
+        "budget": {
+            "totalBudget": 150000000,
+            "expenses": [
+                {
+                    "category": "Car Development",
+                    "amount": 52000000,
+                    "approvalStatus": "Approved",
+                    "expenseDate": "2024-01-20",
+                    "subCategory": [
+                        {
+                            "name": "Aerodynamics",
+                            "amount": 22000000
+                        },
+                        {
+                            "name": "Engine",
+                            "amount": 15000000
+                        },
+                        {
+                            "name": "Chassis",
+                            "amount": 15000000
+                        }
+                    ]
+                },
+                {
+                    "category": "Personnel",
+                    "amount": 63000000,
+                    "approvalStatus": "Approved",
+                    "expenseDate": "2024-02-05",
+                    "subCategory": [
+                        {
+                            "name": "Driver",
+                            "amount": 26000000
+                        },
+                        {
+                            "name": "Engineer",
+                            "amount": 21000000
+                        },
+                        {
+                            "name": "Pit Crew",
+                            "amount": 16000000
+                        }
+                    ]
+                },
+                {
+                    "category": "Operations",
+                    "amount": 35000000,
+                    "approvalStatus": "Pending",
+                    "expenseDate": "2024-03-15",
+                    "subCategory": [
+                        {
+                            "name": "Logistics",
+                            "amount": 14000000
+                        },
+                        {
+                            "name": "Marketing",
+                            "amount": 11000000
+                        },
+                        {
+                            "name": "Travel",
+                            "amount": 10000000
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "teamName": "Scuderia Ferrari",
+        "year": 2024,
+        "headQuarters": "Maranello, Italy",
+        "teamPrincipal": "Fred Vasseur",
+        "constructorsChampionshipWins": 16,
+        "budget": {
+            "totalBudget": 148000000,
+            "expenses": [
+                {
+                    "category": "Car Development",
+                    "amount": 53000000,
+                    "approvalStatus": "Approved",
+                    "expenseDate": "2024-01-25",
+                    "subCategory": [
+                        {
+                            "name": "Aerodynamics",
+                            "amount": 20000000
+                        },
+                        {
+                            "name": "Engine",
+                            "amount": 17000000
+                        },
+                        {
+                            "name": "Chassis",
+                            "amount": 16000000
+                        }
+                    ]
+                },
+                {
+                    "category": "Personnel",
+                    "amount": 61000000,
+                    "approvalStatus": "Pending",
+                    "expenseDate": "2024-02-10",
+                    "subCategory": [
+                        {
+                            "name": "Driver",
+                            "amount": 24000000
+                        },
+                        {
+                            "name": "Engineer",
+                            "amount": 20000000
+                        },
+                        {
+                            "name": "Pit Crew",
+                            "amount": 17000000
+                        }
+                    ]
+                },
+                {
+                    "category": "Operations",
+                    "amount": 34000000,
+                    "approvalStatus": "Approved",
+                    "expenseDate": "2024-03-20",
+                    "subCategory": [
+                        {
+                            "name": "Logistics",
+                            "amount": 15000000
+                        },
+                        {
+                            "name": "Marketing",
+                            "amount": 9000000
+                        },
+                        {
+                            "name": "Travel",
+                            "amount": 10000000
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+]

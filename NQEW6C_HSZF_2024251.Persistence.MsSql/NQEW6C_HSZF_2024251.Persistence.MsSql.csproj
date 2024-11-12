@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <None Update="F1TeamsData.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

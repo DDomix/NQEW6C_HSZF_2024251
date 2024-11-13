@@ -14,11 +14,15 @@ namespace NQEW6C_HSZF_2024251.Application
     {
         private readonly AppDBContext _context;
         private readonly DatabaseSeeder _seeder;
+        private readonly F1DataProvider _provider;
+        private readonly ToConsole _toConsole;
 
-        public Menu(AppDBContext context, DatabaseSeeder seeder)
+        public Menu(AppDBContext context, DatabaseSeeder seeder, F1DataProvider provider, ToConsole toConsole)
         {
             _context = context;
             _seeder = seeder;
+            _provider = provider;
+            _toConsole = toConsole;
         }
 
         public async Task ShowMainMenuAsync()
@@ -56,8 +60,10 @@ namespace NQEW6C_HSZF_2024251.Application
                 case "2":
                     Console.Clear();
                     Console.WriteLine("Almenü: GetTeamEntities");
-                    F1DataProvider asd = new F1DataProvider(_context);
-                    asd.GetTeamEntities().Count();
+                    Console.WriteLine("Adja meg az azonosítót(id): ");
+                    int id = int.Parse(Console.ReadLine());
+                    var team=_provider.GetTeamsEntityById(id);
+                    _toConsole.Display(team);
                     break;
                 default:
                     Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
@@ -72,7 +78,7 @@ namespace NQEW6C_HSZF_2024251.Application
         {
             // Alapértelmezett adatok feltöltése
             Console.WriteLine("Adatbázis feltöltése alapértelmezett adatokkal...");
-            await _seeder.SeedDataAsync("C:\\Users\\Domi\\Desktop\\OE\\NQEW6C_HSZF_2024251.Console\\NQEW6C_HSZF_2024251.Persistence.MsSql\\F1TeamsData.json"); // alapértelmezett JSON fájl használata
+            await _seeder.SeedDataAsync("F1TeamsData.json"); // alapértelmezett JSON fájl használata
             Console.WriteLine("Feltöltés sikeres.");
         }
 

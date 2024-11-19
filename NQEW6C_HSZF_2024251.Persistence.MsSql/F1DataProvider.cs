@@ -9,6 +9,8 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
     {
         TeamsEntity GetTeamsEntityById(int id);
         List<TeamsEntity> GetTeamEntities();
+
+
         void AddTeam(TeamsEntity team);
         void UpdateTeam(TeamsEntity team);
         void DeleteTeam(TeamsEntity team); // Új metódus a csapat törléséhez
@@ -27,8 +29,8 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         {
             return context.Teams
                 .Include(t => t.Budget)
-                .ThenInclude(b => b.Expenses)
-                .ToList();
+                .ThenInclude(b => b.Expenses).ToList();
+                
         }
 
         public TeamsEntity GetTeamsEntityById(int id)

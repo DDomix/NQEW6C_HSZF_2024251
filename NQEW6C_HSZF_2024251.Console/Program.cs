@@ -14,15 +14,24 @@ namespace NQEW6C_HSZF_2024251
             Console.WriteLine("Starting Application...");
 
             var host = Host.CreateDefaultBuilder()
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddScoped<AppDBContext>();
-                    services.AddSingleton<IF1DataProvider, F1DataProvider>();
-                    services.AddSingleton<IF1Service, F1Service>();
-                    services.AddTransient<DatabaseSeeder>();
-                    services.AddTransient<Menu>();
-                })
-                .Build();
+    .ConfigureServices((hostContext, services) =>
+    {
+        // Register DbContext
+        services.AddDbContext<AppDBContext>();
+
+        // Register the data provider and service using the interfaces
+        services.AddScoped<IF1DataProvider, F1DataProvider>();
+        services.AddScoped<IF1Service, F1Service>();
+
+        // Register additional dependencies
+        services.AddTransient<DatabaseSeeder>();
+        services.AddTransient<Menu>();
+        services.AddTransient<ToConsole>();
+    })
+    .Build();
+
+
+
 
             using (var serviceScope = host.Services.CreateScope())
             {
@@ -30,10 +39,10 @@ namespace NQEW6C_HSZF_2024251
 
                 try
                 {
-                    var context = services.GetRequiredService<AppDBContext>();
-                    var seeder = services.GetRequiredService<DatabaseSeeder>();
-                    var menu = new Menu(context, seeder);
+                    // Resolve services from the service provider
+                    var menu = services.GetRequiredService<Menu>();
 
+                    // Run the main menu
                     await menu.ShowMainMenuAsync();
                 }
                 catch (Exception ex)
@@ -44,4 +53,3 @@ namespace NQEW6C_HSZF_2024251
         }
     }
 }
-

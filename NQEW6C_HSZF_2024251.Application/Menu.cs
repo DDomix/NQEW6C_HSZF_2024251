@@ -127,40 +127,44 @@ namespace NQEW6C_HSZF_2024251.Application
             }
         }
         private async Task ShowAdminMenuAsync()
-{
-    bool backToMainMenu = false;
-
-    while (!backToMainMenu)
-    {
-        Console.Clear();
-        Console.WriteLine("Adminisztrációs menü:");
-        Console.WriteLine("1. Csapatok frissítése");
-        Console.WriteLine("2. Csapatok törlése");
-        Console.WriteLine("ESC: Vissza a főmenübe");
-        Console.Write("Kérjük, válasszon egy opciót (1, 2 vagy ESC): ");
-
-        var key = Console.ReadKey(true);
-
-        switch (key.Key)
         {
-            case ConsoleKey.D1:
-            case ConsoleKey.NumPad1:
-                //await UpdateTeamAsync();
-                break;
-            case ConsoleKey.D2:
-            case ConsoleKey.NumPad2:
-                //await DeleteTeamAsync();
-                break;
-            case ConsoleKey.Escape:
-                backToMainMenu = true;
-                break;
-            default:
-                Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
-                break;
+            bool backToMainMenu = false;
+        
+            while (!backToMainMenu)
+            {
+                Console.Clear();
+                Console.WriteLine("Adminisztrációs menü:");
+                Console.WriteLine("1. Csapatok frissítése");
+                Console.WriteLine("2. Csapatok törlése");
+                Console.WriteLine("3. Adatbázis törlése törlése");
+                Console.WriteLine("ESC: Vissza a főmenübe");
+                Console.Write("Kérjük, válasszon egy opciót (1, 2 vagy ESC): ");
+        
+                var key = Console.ReadKey(true);
+        
+                switch (key.Key)
+                {
+                    case ConsoleKey.D1:
+                    case ConsoleKey.NumPad1:
+                        await UpdateTeamAsync();
+                        break;
+                    case ConsoleKey.D2:
+                    case ConsoleKey.NumPad2:
+                        DeleteTeamAsync();
+                        break;
+                    case ConsoleKey.D3:
+                    case ConsoleKey.NumPad3:
+                        DeleteDataBaseAsync();
+                        break;
+                    case ConsoleKey.Escape:
+                        backToMainMenu = true;
+                        break;
+                    default:
+                        Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
+                        break;
+                }
+            }
         }
-    }
-}
-
 
 
         private bool TeamQueries(bool backToQueryMenu)
@@ -216,6 +220,120 @@ namespace NQEW6C_HSZF_2024251.Application
             }
             return backToQueryMenu;
         }
+
+
+        private void DeleteDataBaseAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("Adatbázis törlése");
+            Console.Write("Biztosan törli az adatbázis minden adatát? (i/n): ");
+            if (Console.ReadLine().Trim().ToLower() == "i")
+            {
+                var teamdata = _service.GetTeamsEntity();
+                var budgetdata = _service.GetBudgetEntities();
+                var expensedata = _service.GetExpensesEntities();
+                
+                _service.DeleteTeamDataBase(teamdata);
+                _service.DeleteBudgetDataBase(budgetdata);
+                _service.DeleteExpenseDataBase(expensedata);
+                Console.WriteLine("Adatbázis sikeresen törölve.");
+            }
+            else
+            {
+                Console.WriteLine("Az adatbázis törlése megszakítva.");
+            }
+        }
+        private async Task UpdateTeamAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("Csapat frissítése:");
+            Console.Write("Adja meg a frissítendő csapat azonosítóját: ");
+
+            if (int.TryParse(Console.ReadLine(), out int teamId))
+            {
+                var team = _service.GetF1EntityById(teamId);
+
+                if (team == null)
+                {
+                    Console.WriteLine("Nincs ilyen azonosítóval rendelkező csapat.");
+                }
+                else
+                {
+                    Console.WriteLine("Jelenlegi adatok:");
+                    _toConsole.Display(team);
+
+                    Console.WriteLine("Hagyja üresen az új értéket, ha nem szeretné módosítani azt a mezőt.");
+                    Console.Write("Új csapatnév: ");
+                    string newName = Console.ReadLine();
+                    Console.Write("Új főhadiszállás: ");
+                    string newHeadquarters = Console.ReadLine();
+                    Console.Write("Új csapatfőnök neve: ");
+                    string newPrincipal = Console.ReadLine();
+                    Console.Write("Új konstruktőri címek száma: ");
+                    int? newTitles = null;
+                    string titlesInput = Console.ReadLine();
+                    if (int.TryParse(titlesInput, out int parsedTitles)) newTitles = parsedTitles;
+
+                    team.TeamName = string.IsNullOrWhiteSpace(newName) ? team.TeamName : newName;
+                    team.HeadQuarters = string.IsNullOrWhiteSpace(newHeadquarters) ? team.HeadQuarters : newHeadquarters;
+                    team.TeamPrincipal = string.IsNullOrWhiteSpace(newPrincipal) ? team.TeamPrincipal : newPrincipal;
+                    team.ConstructorsChampionshipWins = newTitles ?? team.ConstructorsChampionshipWins;
+
+                    _service.AddOrUpdateTeam(team);
+
+                    Console.WriteLine("Csapat sikeresen frissítve.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen azonosító.");
+            }
+
+            Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+            Console.ReadKey();
+        }
+
+        private void DeleteTeamAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("Csapat törlése:");
+            Console.Write("Adja meg a törlendő csapat azonosítóját: ");
+
+            if (int.TryParse(Console.ReadLine(), out int teamId))
+            {
+                var team = _service.GetF1EntityById(teamId);
+
+                if (team == null)
+                {
+                    Console.WriteLine("Nincs ilyen azonosítóval rendelkező csapat.");
+                }
+                else
+                {
+                    Console.WriteLine("Törlendő csapat adatai:");
+                    _toConsole.Display(team);
+
+                    Console.Write("Biztosan törli ezt a csapatot? (i/n): ");
+                    if (Console.ReadLine().Trim().ToLower() == "i")
+                    {
+                        _service.DeleteTeam(teamId);
+                        Console.WriteLine("Csapat sikeresen törölve.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("A csapat törlése megszakítva.");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen azonosító.");
+            }
+
+            Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+            Console.ReadKey();
+        }
+
+
 
         private void GetTeamsByConstructorTitles()
         {

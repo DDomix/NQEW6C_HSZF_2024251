@@ -3,18 +3,20 @@ using Newtonsoft.Json;
 using NQEW6C_HSZF_2024251.Model;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 {
     public class DatabaseSeeder
     {
-        private readonly AppDBContext _context;
+        private readonly IF1DataProvider _provider;
 
-        public DatabaseSeeder(AppDBContext context)
+        public DatabaseSeeder(IF1DataProvider provider)
         {
-            _context = context;
+            _provider = provider;
         }
+
         public async Task SeedDataAsync(string filePath)
         {
             if (!File.Exists(filePath))
@@ -34,88 +36,24 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
             foreach (var team in teams)
             {
-                var existingTeam = _context.Teams
-                    .Include(t => t.Budget)
-                    .ThenInclude(b => b.Expenses)
-                    .FirstOrDefault(t => t.TeamName == team.TeamName && t.Year == team.Year);
+                // Ellenőrizzük, hogy a csapat már létezik-e
+                var existingTeam = _provider.GetTeamEntities().FirstOrDefault(x => x.TeamName.Equals((team.TeamName)));
 
                 if (existingTeam == null)
                 {
-                    _context.Teams.Add(team);
+                    // Új csapat hozzáadása
+                    _provider.AddOrUpdateTeam(team);
+                    Console.WriteLine($"Új csapat hozzáadva: {team.TeamName}");
                 }
                 else
                 {
-                    existingTeam.TeamPrincipal = team.TeamPrincipal;
-                    existingTeam.ConstructorsChampionshipWins = team.ConstructorsChampionshipWins;
-
-                    if (existingTeam.Budget == null)
-                    {
-                        existingTeam.Budget = team.Budget;
-                    }
-                    else
-                    {
-                        existingTeam.Budget.TotalBudget = team.Budget.TotalBudget;
-
-                        foreach (var expense in team.Budget.Expenses)
-                        {
-                            var existingExpense = existingTeam.Budget.Expenses
-                                .FirstOrDefault(e => e.Category == expense.Category && e.ExpenseDate == expense.ExpenseDate);
-
-                            if (existingExpense == null)
-                            {
-                                // Új kiadás hozzáadása, ha még nem létezik
-                                expense.Amount = expense.SubCategory.Sum(sc => sc.Amount);
-
-                                if (existingTeam.Budget.TotalBudget >= existingTeam.Budget.Expenses.Sum(e => e.Amount) + expense.Amount)
-                                {
-                                    existingTeam.Budget.Expenses.Add(expense);
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"A(z) {expense.Category} kiadás összege meghaladná a költségvetést, ezért kimarad.");
-                                }
-                            }
-                            else
-                            {
-                                existingExpense.Amount = existingExpense.SubCategory.Sum(sc => sc.Amount);
-
-                                if (existingTeam.Budget.TotalBudget >= existingTeam.Budget.Expenses.Sum(e => e.Amount))
-                                {
-                                    foreach (var subCategory in expense.SubCategory)
-                                    {
-                                        var existingSubCategory = existingExpense.SubCategory
-                                            .FirstOrDefault(sc => sc.Name == subCategory.Name);
-
-                                        if (existingSubCategory == null)
-                                        {
-                                            existingExpense.SubCategory.Add(subCategory);
-                                            existingExpense.Amount += subCategory.Amount;
-                                        }
-                                        else
-                                        {
-                                            existingSubCategory.Amount = subCategory.Amount;
-                                        }
-                                    }
-
-                                    existingExpense.Amount = existingExpense.SubCategory.Sum(sc => sc.Amount);
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"A(z) {expense.Category} kiadás frissítése meghaladná a költségvetést, ezért nem kerül frissítésre.");
-                                }
-                            }
-                        }
-                    }
+                    // Csapat frissítése
+                    _provider.AddOrUpdateTeam(team);
+                    Console.WriteLine($"Létező csapat frissítve: {team.TeamName}");
                 }
             }
 
-            await _context.SaveChangesAsync();
             Console.WriteLine("Az adatbázis frissítése sikeresen megtörtént.");
         }
-
-
-
-
     }
 }
-

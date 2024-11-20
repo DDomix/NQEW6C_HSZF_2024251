@@ -13,6 +13,7 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
     {
         public DbSet<TeamsEntity> Teams { get; set; }
         public DbSet<Budget> Budgets { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

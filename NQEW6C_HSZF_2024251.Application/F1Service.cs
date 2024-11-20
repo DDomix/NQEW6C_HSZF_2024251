@@ -13,8 +13,8 @@ namespace NQEW6C_HSZF_2024251.Application
         
         List<TeamsEntity> GetTeamsEntity();
         TeamsEntity GetTeamEntityByName(string name);
-        void AddOrUpdateTeam(TeamsEntity team);
         void DeleteTeam(int id); // Új metódus a csapat törléséhez
+        void AddOrUpdateTeam(TeamsEntity team);
 
         TeamsEntity GetTeamEntityByExactName(string name);
 
@@ -25,6 +25,13 @@ namespace NQEW6C_HSZF_2024251.Application
         List<TeamsEntity> GetTeamsByPrincipal(string principalName);
 
         List<TeamsEntity> GetTeamsByConstructorTitles(int titleCount);
+
+        void DeleteTeamDataBase(List<TeamsEntity> teamslist);
+        void DeleteBudgetDataBase(List<Budget> budgets);
+        void DeleteExpenseDataBase(List<Expense> expenses);
+        List<Expense> GetExpensesEntities();
+
+        List<Budget> GetBudgetEntities();
     }
 
     public class F1Service : IF1Service
@@ -44,32 +51,6 @@ namespace NQEW6C_HSZF_2024251.Application
         public List<TeamsEntity> GetTeamsEntity()
         {
             return dataProvider.GetTeamEntities();
-        }
-
-        public void AddOrUpdateTeam(TeamsEntity team)
-        {
-            var existingTeam = dataProvider.GetTeamEntities()
-                .FirstOrDefault(t => t.TeamName == team.TeamName && t.Year == team.Year);
-
-            if (existingTeam == null)
-            {
-                dataProvider.AddTeam(team); // Új csapat hozzáadása
-            }
-            else
-            {
-                // Frissítjük a meglévő csapatot, például a költségeket
-                foreach (var expense in team.Budget.Expenses)
-                {
-                    var existingExpense = existingTeam.Budget.Expenses
-                        .FirstOrDefault(e => e.Category == expense.Category && e.ExpenseDate == expense.ExpenseDate);
-
-                    if (existingExpense == null)
-                    {
-                        existingTeam.Budget.Expenses.Add(expense);
-                    }
-                }
-                dataProvider.UpdateTeam(existingTeam); // Csapat frissítése
-            }
         }
 
         public TeamsEntity GetTeamEntityByName(string name)
@@ -96,6 +77,11 @@ namespace NQEW6C_HSZF_2024251.Application
                 .ToList();
         }
 
+        public void AddOrUpdateTeam(TeamsEntity team)
+        {
+            dataProvider.AddOrUpdateTeam(team);
+        }
+
         public List<TeamsEntity> GetTeamsByPrincipal(string principalName)
         {
             return dataProvider.GetTeamEntities()
@@ -109,12 +95,44 @@ namespace NQEW6C_HSZF_2024251.Application
                 .Where(t => t.ConstructorsChampionshipWins == titleCount)
                 .ToList();
         }
+
+        public List<Budget> GetBudgetEntities()
+        {
+            return dataProvider.GetBudgetEntities();
+        }
+        public List<Expense> GetExpensesEntities()
+        {
+            return dataProvider.GetExpeseEntities();
+        }
         public void DeleteTeam(int id)
         {
             var team = dataProvider.GetTeamsEntityById(id);
             if (team != null)
             {
                 dataProvider.DeleteTeam(team);
+            }
+        }
+
+        public void DeleteTeamDataBase(List<TeamsEntity> teamslist)
+        {
+            foreach (var team in teamslist) 
+            {
+                dataProvider.DeleteTeam(team);
+            }
+        }
+
+        public void DeleteBudgetDataBase(List<Budget> budgets)
+        {
+            foreach (var budget in budgets)
+            {
+                dataProvider.DeleteBudget(budget);
+            }
+        }
+        public void DeleteExpenseDataBase(List<Expense> expenses)
+        {
+            foreach (var exp in expenses)
+            {
+                dataProvider.DeleteExpense(exp);
             }
         }
 

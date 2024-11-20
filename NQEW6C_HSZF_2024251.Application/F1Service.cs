@@ -1,4 +1,5 @@
-﻿using NQEW6C_HSZF_2024251.Model;
+﻿using Microsoft.EntityFrameworkCore;
+using NQEW6C_HSZF_2024251.Model;
 using NQEW6C_HSZF_2024251.Persistence.MsSql;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,19 @@ namespace NQEW6C_HSZF_2024251.Application
         TeamsEntity GetF1EntityById(int id);
         
         List<TeamsEntity> GetTeamsEntity();
-        TeamsEntity GetTeamsEntityByName(string name);
+        TeamsEntity GetTeamEntityByName(string name);
         void AddOrUpdateTeam(TeamsEntity team);
         void DeleteTeam(int id); // Új metódus a csapat törléséhez
 
+        TeamsEntity GetTeamEntityByExactName(string name);
 
+        List<TeamsEntity> GetTeamEntitiesByYear(int year);
+
+        List<TeamsEntity> GetTeamsByHeadquarters(string headquarters);
+
+        List<TeamsEntity> GetTeamsByPrincipal(string principalName);
+
+        List<TeamsEntity> GetTeamsByConstructorTitles(int titleCount);
     }
 
     public class F1Service : IF1Service
@@ -63,18 +72,58 @@ namespace NQEW6C_HSZF_2024251.Application
             }
         }
 
-        public TeamsEntity GetTeamsEntityByName(string name)
+        public TeamsEntity GetTeamEntityByName(string name)
         {
             return dataProvider.GetTeamEntities().FirstOrDefault(x => x.TeamName.Contains(name));
 
         }
 
+        public List<TeamsEntity>GetTeamEntitiesByYear(int year)
+        {
+            return dataProvider.GetTeamEntities().Where(x => x.Year.Equals(year)).ToList();
+
+        }
+
+        public TeamsEntity GetTeamEntityByExactName(string name)
+        {
+            return dataProvider.GetTeamEntities().FirstOrDefault(x => x.TeamName.Equals(name));
+
+        }
+        public List<TeamsEntity> GetTeamsByHeadquarters(string headquarters)
+        {
+            return dataProvider.GetTeamEntities()
+                .Where(t => t.HeadQuarters.Contains(headquarters, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        public List<TeamsEntity> GetTeamsByPrincipal(string principalName)
+        {
+            return dataProvider.GetTeamEntities()
+                .Where(t => t.TeamPrincipal.Contains(principalName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        public List<TeamsEntity> GetTeamsByConstructorTitles(int titleCount)
+        {
+            return dataProvider.GetTeamEntities()
+                .Where(t => t.ConstructorsChampionshipWins == titleCount)
+                .ToList();
+        }
         public void DeleteTeam(int id)
         {
             var team = dataProvider.GetTeamsEntityById(id);
             if (team != null)
             {
                 dataProvider.DeleteTeam(team);
+            }
+        }
+
+        public void UpdateTeam(int id)
+        {
+            var team = dataProvider.GetTeamsEntityById(id);
+            if (team != null)
+            {
+                dataProvider.UpdateTeam(team);
             }
         }
     }

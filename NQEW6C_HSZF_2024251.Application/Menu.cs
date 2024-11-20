@@ -23,8 +23,9 @@ namespace NQEW6C_HSZF_2024251.Application
             {
                 Console.Clear();
                 Console.WriteLine("Főmenü:");
-                Console.WriteLine("1. Adatbázis feltöltése");
+                Console.WriteLine("1. Adatbázis műveletek");
                 Console.WriteLine("2. Lekérdezések");
+                Console.WriteLine("3. Admin");
                 Console.WriteLine("ESC: Kilépés");
                 Console.Write("Kérjük, válasszon egy opciót (1, 2 vagy ESC): ");
 
@@ -39,6 +40,10 @@ namespace NQEW6C_HSZF_2024251.Application
                     case ConsoleKey.D2:
                     case ConsoleKey.NumPad2:
                         await ShowQueryMenuAsync();
+                        break;
+                    case ConsoleKey.D3:
+                    case ConsoleKey.NumPad3:
+                        await ShowAdminMenuAsync();
                         break;
                     case ConsoleKey.Escape:
                         exitMainMenu = true;
@@ -92,12 +97,11 @@ namespace NQEW6C_HSZF_2024251.Application
             while (!backToMainMenu)
             {
                 Console.Clear();
-                Console.WriteLine("Lekérdezések: ");
-                Console.WriteLine("1. Összes csapat lekérdezése");
-                Console.WriteLine("2. Csapat lekérdezése ID alapján");
-                Console.WriteLine("3. Csapat lekérdezése csapat név alapján");
+                Console.WriteLine("Lekérdezések:");
+                Console.WriteLine("1. Csapat lekérdezések");
+                Console.WriteLine("2. Költségvetés lekérdezések");
                 Console.WriteLine("ESC: Vissza a főmenübe");
-                Console.Write("Kérjük, válasszon egy opciót (1, 2, 3 vagy ESC): ");
+                Console.Write("Kérjük, válasszon egy opciót (1, 2 vagy ESC): ");
 
                 var key = Console.ReadKey(true);
 
@@ -105,44 +109,16 @@ namespace NQEW6C_HSZF_2024251.Application
                 {
                     case ConsoleKey.D1:
                     case ConsoleKey.NumPad1:
-                        var allteams = _service.GetTeamsEntity();
-                        _toConsole.Display(allteams);
-                        Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
-                        Console.ReadKey();
+                        TeamQueries(false); // Csapat lekérdezések almenü
                         break;
                     case ConsoleKey.D2:
                     case ConsoleKey.NumPad2:
-                        Console.WriteLine("Adja meg az azonosítót (id): ");
-                        if (int.TryParse(Console.ReadLine(), out int id))
-                        {
-                            var team = _service.GetF1EntityById(id);
-                            if (team != null)
-                            {
-                                _toConsole.Display(team);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Nincs ilyen azonosítóval rendelkező csapat.");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Érvénytelen azonosító.");
-                        }
-                        Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
-                        Console.ReadKey();
-                        break;
-                    case ConsoleKey.D3:
-                    case ConsoleKey.NumPad3:
-                        Console.WriteLine("Adja meg a csapat nevét: ");
-                        string teamName = Console.ReadLine();
-                        var teams = _service.GetTeamsEntityByName(teamName);
-                        _toConsole.Display(teams);
+                        Console.WriteLine("Költségvetés lekérdezések (TODO: implementáció)");
                         Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
                         Console.ReadKey();
                         break;
                     case ConsoleKey.Escape:
-                        backToMainMenu = true;
+                        backToMainMenu = true; // Visszatérés a főmenübe
                         break;
                     default:
                         Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
@@ -150,7 +126,266 @@ namespace NQEW6C_HSZF_2024251.Application
                 }
             }
         }
+        private async Task ShowAdminMenuAsync()
+{
+    bool backToMainMenu = false;
 
+    while (!backToMainMenu)
+    {
+        Console.Clear();
+        Console.WriteLine("Adminisztrációs menü:");
+        Console.WriteLine("1. Csapatok frissítése");
+        Console.WriteLine("2. Csapatok törlése");
+        Console.WriteLine("ESC: Vissza a főmenübe");
+        Console.Write("Kérjük, válasszon egy opciót (1, 2 vagy ESC): ");
+
+        var key = Console.ReadKey(true);
+
+        switch (key.Key)
+        {
+            case ConsoleKey.D1:
+            case ConsoleKey.NumPad1:
+                //await UpdateTeamAsync();
+                break;
+            case ConsoleKey.D2:
+            case ConsoleKey.NumPad2:
+                //await DeleteTeamAsync();
+                break;
+            case ConsoleKey.Escape:
+                backToMainMenu = true;
+                break;
+            default:
+                Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
+                break;
+        }
+    }
+}
+
+
+
+        private bool TeamQueries(bool backToQueryMenu)
+        {
+            while (!backToQueryMenu)
+            {
+                Console.Clear();
+                Console.WriteLine("Csapat lekérdezések:");
+                Console.WriteLine("1. Azonosító (id)");
+                Console.WriteLine("2. Csapatnév");
+                Console.WriteLine("3. Év");
+                Console.WriteLine("4. Főhadiszállás");
+                Console.WriteLine("5. Csapatfőnök neve");
+                Console.WriteLine("6. Konstruktőri címek");
+                Console.WriteLine("ESC: Vissza a lekérdezések menübe");
+                Console.Write("Kérjük, válasszon egy opciót (1-6 vagy ESC): ");
+
+                var keyasd = Console.ReadKey(true);
+
+                switch (keyasd.Key)
+                {
+                    case ConsoleKey.D1:
+                    case ConsoleKey.NumPad1:
+                        GetTeamEntityByID();
+                        break;
+                    case ConsoleKey.D2:
+                    case ConsoleKey.NumPad2:
+                        GetTeamEntitiesByName();
+                        break;
+                    case ConsoleKey.D3:
+                    case ConsoleKey.NumPad3:
+                        GetTeamsByYear();
+                        break;
+                    case ConsoleKey.D4:
+                    case ConsoleKey.NumPad4:
+                        GetTeamsByHeadquarters();
+                        break;
+                    case ConsoleKey.D5:
+                    case ConsoleKey.NumPad5:
+                        GetTeamsByTeamPrincipal();
+                        break;
+                    case ConsoleKey.D6:
+                    case ConsoleKey.NumPad6:
+                        GetTeamsByConstructorTitles();
+                        break;
+                    case ConsoleKey.Escape:
+                        backToQueryMenu = true;
+                        break;
+                    default:
+                        Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
+                        break;
+                }
+            }
+            return backToQueryMenu;
+        }
+
+        private void GetTeamsByConstructorTitles()
+        {
+            Console.Clear();
+            Console.WriteLine("Adja meg a konstruktőri címek számát: ");
+            if (int.TryParse(Console.ReadLine(), out int titleCount))
+            {
+                var teams = _service.GetTeamsByConstructorTitles(titleCount);
+                if (teams.Any())
+                {
+                    _toConsole.Display(teams);
+                }
+                else
+                {
+                    Console.WriteLine("Nincs csapat a megadott konstruktőri címek számával.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen számformátum.");
+            }
+            Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+            Console.ReadKey();
+        }
+
+
+        private void GetTeamsByTeamPrincipal()
+        {
+            Console.Clear();
+            Console.WriteLine("Adja meg a csapatfőnök nevét: ");
+            string principalName = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(principalName))
+            {
+                var teams = _service.GetTeamsByPrincipal(principalName);
+                if (teams.Any())
+                {
+                    _toConsole.Display(teams);
+                }
+                else
+                {
+                    Console.WriteLine("Nincs csapat a megadott csapatfőnök nevű vezetővel.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen bemenet.");
+            }
+            Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+            Console.ReadKey();
+        }
+
+
+        private void GetTeamsByHeadquarters()
+        {
+            Console.Clear();
+            Console.WriteLine("Adja meg a főhadiszállás nevét: ");
+            string headquarters = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(headquarters))
+            {
+                var teams = _service.GetTeamsByHeadquarters(headquarters);
+                if (teams.Any())
+                {
+                    _toConsole.Display(teams);
+                }
+                else
+                {
+                    Console.WriteLine("Nincs csapat a megadott főhadiszállással.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen bemenet.");
+            }
+            Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+            Console.ReadKey();
+        }
+
+
+        private void GetTeamsByYear()
+        {
+            Console.Clear();
+            Console.WriteLine("Év lekérdezése:");
+            Console.WriteLine();
+            Console.Write("Adja meg az évet: ");
+            if (int.TryParse(Console.ReadLine(), out int year))
+            {
+                var yearentities = _service.GetTeamEntitiesByYear(year);
+                if (yearentities.Count == 0)
+                {
+                    Console.WriteLine("Nincs adat a megadott évhez. Próbálja újra.");
+                    Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    _toConsole.Display(yearentities);
+                    Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+                    Console.ReadKey();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen évformátum. Próbálja újra.");
+                Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+                Console.ReadKey();
+            }
+        }
+
+        private void GetTeamEntityByID()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Adja meg az azonosítót (id): ");
+            if (int.TryParse(Console.ReadLine(), out int id))
+            {
+                var team = _service.GetF1EntityById(id);
+                if (team != null)
+                {
+                    _toConsole.Display(team);
+                }
+                else
+                {
+                    Console.WriteLine("Nincs ilyen azonosítóval rendelkező csapat.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Érvénytelen azonosító.");
+            }
+            Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+            Console.ReadKey();
+        }
+
+        private void GetTeamEntitiesByName()
+        {
+            Console.Clear();
+            Console.WriteLine("2. Csapat lekérdezése csapat név alapján");
+            Console.WriteLine("1.Pontos nevet ad meg");
+            Console.WriteLine("2.Megközelítőleges nevet ad meg");
+            Console.Write("Kérjük, válasszon egy opciót (1, 2, 3 vagy ESC): ");
+            var key2 = Console.ReadKey(true);
+
+            switch (key2.Key)
+            {
+                case ConsoleKey.D1:
+                case ConsoleKey.NumPad1:
+                    Console.WriteLine();
+                    Console.WriteLine("Adja meg pontosan a csapat nevét: ");
+                    string exactteamName = Console.ReadLine();
+                    var exactteams = _service.GetTeamEntityByExactName(exactteamName);
+                    _toConsole.Display(exactteams);
+                    Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+                    Console.ReadKey();
+                    break;
+                case ConsoleKey.D2:
+                case ConsoleKey.NumPad2:
+                    Console.WriteLine();
+                    Console.WriteLine("Adja meg a csapat nevét: ");
+                    string teamName = Console.ReadLine();
+                    var teams = _service.GetTeamEntityByName(teamName);
+                    _toConsole.Display(teams);
+                    Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
+                    Console.ReadKey();
+                    break;
+                default:
+                    Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
+                    break;
+            }
+        }
 
         private async Task FillDatabaseWithDefaultDataAsync()
         {

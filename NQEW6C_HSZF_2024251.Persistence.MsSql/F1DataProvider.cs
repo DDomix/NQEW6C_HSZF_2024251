@@ -10,10 +10,10 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         TeamsEntity GetTeamsEntityById(int id);
         List<TeamsEntity> GetTeamEntities();
 
-
         void AddTeam(TeamsEntity team);
         void UpdateTeam(TeamsEntity team);
         void DeleteTeam(TeamsEntity team); // Új metódus a csapat törléséhez
+
     }
 
     public class F1DataProvider : IF1DataProvider
@@ -32,7 +32,6 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                 .ThenInclude(b => b.Expenses).ToList();
                 
         }
-
         public TeamsEntity GetTeamsEntityById(int id)
         {
             return context.Teams

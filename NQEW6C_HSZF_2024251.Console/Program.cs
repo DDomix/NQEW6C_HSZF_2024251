@@ -43,6 +43,7 @@ namespace NQEW6C_HSZF_2024251
                     var menu = services.GetRequiredService<Menu>();
 
                     // Run the main menu
+
                     await menu.ShowMainMenuAsync();
                 }
                 catch (Exception ex)

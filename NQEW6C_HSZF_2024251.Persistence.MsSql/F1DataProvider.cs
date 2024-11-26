@@ -71,11 +71,11 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
             var existingTeam = context.Teams
                 .Include(t => t.Budget)
                 .ThenInclude(b => b.Expenses)
+                .ThenInclude(e => e.SubCategory)
                 .FirstOrDefault(t => t.TeamName == team.TeamName && t.Year == team.Year);
 
             if (existingTeam == null)
             {
-                
                 AddTeam(team);
             }
             else
@@ -88,6 +88,25 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                     if (existingExpense == null)
                     {
                         existingTeam.Budget.Expenses.Add(expense);
+                        context.Entry(expense).State = EntityState.Added;
+                    }
+                    else
+                    {
+                        foreach (var subCategory in expense.SubCategory)
+                        {
+                            var existingSubCategory = existingExpense.SubCategory
+                                .FirstOrDefault(sc => sc.Name == subCategory.Name);
+
+                            if (existingSubCategory == null)
+                            {
+                                existingExpense.SubCategory.Add(subCategory);
+                                context.Entry(subCategory).State = EntityState.Added;
+                            }
+                            else
+                            {
+                                existingSubCategory.Amount = subCategory.Amount;
+                            }
+                        }
                     }
                 }
                 UpdateTeam(existingTeam);

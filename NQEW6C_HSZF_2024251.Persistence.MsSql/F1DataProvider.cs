@@ -32,6 +32,8 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         void DeleteExpense(Expense expense);
 
         void DeleteBudget(Budget budget);
+
+        void DeleteSubCategory(SubCategory sub);
         List<Expense> GetExpeseEntities();
     }
 
@@ -66,11 +68,14 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
         public void AddOrUpdateTeam(TeamsEntity team)
         {
-            var existingTeam = GetTeamEntities()
+            var existingTeam = context.Teams
+                .Include(t => t.Budget)
+                .ThenInclude(b => b.Expenses)
                 .FirstOrDefault(t => t.TeamName == team.TeamName && t.Year == team.Year);
 
             if (existingTeam == null)
             {
+                
                 AddTeam(team);
             }
             else
@@ -88,25 +93,21 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                 UpdateTeam(existingTeam);
             }
         }
+
         public void AddOrUpdateBudget(Budget budget)
         {
             if (budget == null)
                 throw new ArgumentNullException(nameof(budget));
 
-            // Ellenőrizzük, hogy létezik-e már a költségvetés
             var existingBudget = context.Budgets.FirstOrDefault(b => b.Id == budget.Id);
 
             if (existingBudget == null)
             {
-                // Új költségvetés hozzáadása
                 AddBudget(budget);
             }
             else
             {
-                // Meglévő költségvetés frissítése
                 existingBudget.TotalBudget = budget.TotalBudget;
-
-                // Egyéb frissítések, ha szükséges...
 
                 UpdateBudget(existingBudget);
             }
@@ -170,6 +171,7 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
         public void DeleteTeam(TeamsEntity team)
         {
+            context.Entry(team).Reload();
             context.Teams.Remove(team);
             context.SaveChanges();
         }

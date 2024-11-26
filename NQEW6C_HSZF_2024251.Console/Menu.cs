@@ -110,7 +110,7 @@ namespace NQEW6C_HSZF_2024251.Application
                 {
                     case ConsoleKey.D1:
                     case ConsoleKey.NumPad1:
-                        TeamQueries(false); // Csapat lekérdezések almenü
+                        TeamQueries(false); 
                         break;
                     case ConsoleKey.D2:
                     case ConsoleKey.NumPad2:
@@ -119,7 +119,7 @@ namespace NQEW6C_HSZF_2024251.Application
                         Console.ReadKey();
                         break;
                     case ConsoleKey.Escape:
-                        backToMainMenu = true; // Visszatérés a főmenübe
+                        backToMainMenu = true;
                         break;
                     default:
                         Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
@@ -284,13 +284,12 @@ namespace NQEW6C_HSZF_2024251.Application
                     return null;
                 }
 
-                // Új költségvetés létrehozása
                 var newBudget = new Budget
                 {
                     TotalBudget = totalBudget
                 };
 
-                // Költségvetés mentése az adatbázisba
+                
                 _service.AddOrUpdateBudget(newBudget);
 
                 Console.WriteLine("Az új költségvetés sikeresen létrehozva.");
@@ -387,7 +386,6 @@ namespace NQEW6C_HSZF_2024251.Application
                     Console.WriteLine($"ID: {budget.Id}, Csapat név: {_service.GetTeamsEntityByBudgetId(budget)}  Összeg: {budget.TotalBudget}");
                 }
 
-                // Budget kiválasztása frissítéshez
                 Console.Write("Adja meg a frissíteni kívánt Budget ID-ját: ");
                 if (!int.TryParse(Console.ReadLine(), out int budgetId))
                 {
@@ -413,7 +411,6 @@ namespace NQEW6C_HSZF_2024251.Application
                     return;
                 }
 
-                // Budget frissítése
                 selectedBudget.TotalBudget = newTotalBudget;
                 _service.UpdateBudget(selectedBudget.Id);
 
@@ -479,45 +476,63 @@ namespace NQEW6C_HSZF_2024251.Application
             Console.ReadKey();
         }
 
-        private void DeleteTeamAsync()
+        private async Task DeleteTeamAsync()
         {
-            Console.Clear();
-            Console.WriteLine("Csapat törlése:");
-            Console.Write("Adja meg a törlendő csapat azonosítóját: ");
-
-            if (int.TryParse(Console.ReadLine(), out int teamId))
+            try
             {
-                var team = _service.GetF1EntityById(teamId);
+                Console.Clear();
+                Console.WriteLine("Csapat törlése:");
 
-                if (team == null)
+                var teams = _service.GetTeamEntities();
+                if (teams == null || !teams.Any())
                 {
-                    Console.WriteLine("Nincs ilyen azonosítóval rendelkező csapat.");
+                    Console.WriteLine("Nincs elérhető csapat az adatbázisban.");
+                    Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
                 }
-                else
-                {
-                    Console.WriteLine("Törlendő csapat adatai:");
-                    _toConsole.Display(team);
 
-                    Console.Write("Biztosan törli ezt a csapatot? (i/n): ");
-                    if (Console.ReadLine().Trim().ToLower() == "i")
+                Console.WriteLine("Elérhető csapatok:");
+                foreach (var team in teams)
+                {
+                    Console.WriteLine($"ID: {team.Id}, Csapat név: {team.TeamName}");
+                }
+
+                Console.Write("Adja meg a törlendő csapat azonosítóját: ");
+                if (int.TryParse(Console.ReadLine(), out int teamId))
+                {
+                    var team = _service.GetF1EntityById(teamId);
+
+                    if (team == null)
                     {
-                        _service.DeleteTeam(teamId);
-                        Console.WriteLine("Csapat sikeresen törölve.");
+                        Console.WriteLine("Nincs ilyen azonosítóval rendelkező csapat.");
                     }
                     else
                     {
-                        Console.WriteLine("A csapat törlése megszakítva.");
+                        Console.WriteLine("Törlendő csapat adatai:");
+                        _toConsole.Display(team);
+
+                        Console.Write("Biztosan törli ezt a csapatot? (i/n): ");
+                        if (Console.ReadLine().Trim().ToLower() == "i")
+                        {
+                            _service.DeleteTeamsAndConnections(teamId);
+                            Console.WriteLine("Csapat és kapcsolódó adatok sikeresen törölve.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("A csapat törlése megszakítva.");
+                        }
                     }
                 }
             }
-            else
+            catch(Exception ex)
             {
-                Console.WriteLine("Érvénytelen azonosító.");
+                Console.WriteLine(ex);
+                Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                Console.ReadKey();
             }
-
-            Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
-            Console.ReadKey();
         }
+
 
 
 
@@ -695,8 +710,14 @@ namespace NQEW6C_HSZF_2024251.Application
         private async Task FillDatabaseWithDefaultDataAsync()
         {
             Console.WriteLine("Adatbázis feltöltése alapértelmezett adatokkal...");
-            await _seeder.SeedDataAsync("F1TeamsData.json"); // alapértelmezett JSON fájl használata
-            Console.WriteLine("Feltöltés sikeres.");
+
+            _seeder.DataSeeded += (sender, message) =>
+            {
+                Console.WriteLine(message);
+            };
+
+            await _seeder.SeedDataAsync("F1TeamsData.json");
+
             Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
             Console.ReadKey();
         }
@@ -708,17 +729,20 @@ namespace NQEW6C_HSZF_2024251.Application
 
             if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
             {
-                Console.WriteLine("Adatbázis feltöltése a megadott JSON fájl alapján...");
+                _seeder.DataSeeded += (sender, message) =>
+                {
+                    Console.WriteLine(message);
+                };
+
                 await _seeder.SeedDataAsync(filePath);
-                Console.WriteLine("Feltöltés sikeres.");
             }
             else
             {
                 Console.WriteLine("A megadott fájl nem található.");
             }
-
             Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
             Console.ReadKey();
         }
+
     }
 }

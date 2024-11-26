@@ -11,10 +11,12 @@ namespace NQEW6C_HSZF_2024251.Application
     {
         TeamsEntity GetF1EntityById(int id);
         
-        List<TeamsEntity> GetTeamsEntity();
+        List<TeamsEntity> GetTeamEntities();
         TeamsEntity GetTeamEntityByName(string name);
         string GetTeamsEntityByBudgetId(Budget budget);
+        string GetTeamEntityById(TeamsEntity team);
         void DeleteTeam(int id);
+        void DeleteTeamsAndConnections(int teamId);
         void UpdateTeam(int id);
         void AddOrUpdateTeam(TeamsEntity team);
         void AddOrUpdateBudget(Budget budget);
@@ -49,8 +51,15 @@ namespace NQEW6C_HSZF_2024251.Application
         {
             return dataProvider.GetTeamsEntityById(id);
         }
+        public string GetTeamEntityById(TeamsEntity team)
+        {
+            var teamm = dataProvider.GetTeamEntities()
+                .Where(x => x.Id == team.Id)
+                .FirstOrDefault();
+            return teamm?.TeamName;
+        }
 
-        public List<TeamsEntity> GetTeamsEntity()
+        public List<TeamsEntity> GetTeamEntities()
         {
             return dataProvider.GetTeamEntities();
         }
@@ -135,6 +144,41 @@ namespace NQEW6C_HSZF_2024251.Application
                 dataProvider.DeleteTeam(team);
             }
         }
+
+        public void DeleteTeamsAndConnections(int teamId)
+        {
+            var team = dataProvider.GetTeamsEntityById(teamId);
+
+            if (team != null)
+            {
+                var budget = team.Budget;
+
+                if (budget != null)
+                {
+                    var expenses = budget.Expenses.ToList();
+
+                    foreach (var expense in expenses)
+                    {
+                        var subCategories = expense.SubCategory.ToList();
+                        foreach (var subCategory in subCategories)
+                        {
+                            dataProvider.DeleteSubCategory(subCategory);
+                        }
+
+                        dataProvider.DeleteExpense(expense);
+                    }
+
+                    dataProvider.DeleteBudget(budget);
+                }
+
+                dataProvider.DeleteTeam(team);
+            }
+            else
+            {
+                throw new Exception("Nem található a törlendő csapat.");
+            }
+        }
+
         public void UpdateTeam(int id)
         {
             var team = dataProvider.GetTeamsEntityById(id);

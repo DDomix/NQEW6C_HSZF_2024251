@@ -25,5 +25,29 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         {
             Database.EnsureCreated();
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            
+            modelBuilder.Entity<TeamsEntity>()
+                .HasOne(t => t.Budget) 
+                .WithMany()            
+                .HasForeignKey(t => t.BudgetId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.Budget) 
+                .WithMany(b => b.Expenses)
+                .HasForeignKey(e => e.BudgetId)
+                .OnDelete(DeleteBehavior.Cascade); 
+
+            
+            modelBuilder.Entity<Expense>()
+                .HasMany(e => e.SubCategory) 
+                .WithOne()                   
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

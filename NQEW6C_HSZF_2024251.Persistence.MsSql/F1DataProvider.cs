@@ -8,13 +8,24 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
     public interface IF1DataProvider
     {
         TeamsEntity GetTeamsEntityById(int id);
+        Budget GetBudgetEntityById(int id);
         List<TeamsEntity> GetTeamEntities();
 
         void AddTeam(TeamsEntity team);
+
+        void AddBudget(Budget budget);
+        void AddExpense(Expense expense);
+        void AddSubCategory(SubCategory subCategory);
+
+
         void UpdateTeam(TeamsEntity team);
+        void UpdateBudget(Budget budget);
+        void UpdateExpense(Expense expense);
+        void UpdateSubCategory(SubCategory subCategory);
         void DeleteTeam(TeamsEntity team); // Új metódus a csapat törléséhez
 
         void AddOrUpdateTeam(TeamsEntity team);
+        void AddOrUpdateBudget(Budget budget);
 
         List<Budget> GetBudgetEntities();
 
@@ -48,6 +59,11 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                 .FirstOrDefault(x => x.Id == id);
         }
 
+        public Budget GetBudgetEntityById(int id)
+        {
+            return context.Budgets.FirstOrDefault(x => x.Id == id);
+        }
+
         public void AddOrUpdateTeam(TeamsEntity team)
         {
             var existingTeam = GetTeamEntities()
@@ -55,11 +71,10 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
             if (existingTeam == null)
             {
-                AddTeam(team); // Új csapat hozzáadása
+                AddTeam(team);
             }
             else
             {
-                // Frissítjük a meglévő csapatot, például a költségeket
                 foreach (var expense in team.Budget.Expenses)
                 {
                     var existingExpense = existingTeam.Budget.Expenses
@@ -70,21 +85,42 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                         existingTeam.Budget.Expenses.Add(expense);
                     }
                 }
-                UpdateTeam(existingTeam); // Csapat frissítése
+                UpdateTeam(existingTeam);
+            }
+        }
+        public void AddOrUpdateBudget(Budget budget)
+        {
+            if (budget == null)
+                throw new ArgumentNullException(nameof(budget));
+
+            // Ellenőrizzük, hogy létezik-e már a költségvetés
+            var existingBudget = context.Budgets.FirstOrDefault(b => b.Id == budget.Id);
+
+            if (existingBudget == null)
+            {
+                // Új költségvetés hozzáadása
+                AddBudget(budget);
+            }
+            else
+            {
+                // Meglévő költségvetés frissítése
+                existingBudget.TotalBudget = budget.TotalBudget;
+
+                // Egyéb frissítések, ha szükséges...
+
+                UpdateBudget(existingBudget);
             }
         }
 
+
         public List<Budget> GetBudgetEntities()
         {
-            return context.Budgets
-                .Include(t => t.TotalBudget).ToList();
-
+            return context.Budgets.ToList();
         }
 
         public List<Expense> GetExpeseEntities()
         {
-            return context.Expenses.ToList();
-
+            return context.Expense.ToList();
         }
 
         public void AddTeam(TeamsEntity team)
@@ -93,9 +129,42 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
             context.SaveChanges();
         }
 
+        public void AddBudget(Budget budget)
+        {
+            context.Budgets.Add(budget);
+            context.SaveChanges();
+        }
+
+        public void AddExpense(Expense expense)
+        {
+            context.Expense.Add(expense);
+            context.SaveChanges();
+        }
+
+        public void AddSubCategory(SubCategory subCategory)
+        {
+            context.SubCategory.Add(subCategory);
+            context.SaveChanges();
+        }
+
         public void UpdateTeam(TeamsEntity team)
         {
             context.Teams.Update(team);
+            context.SaveChanges();
+        }
+        public void UpdateBudget(Budget budget)
+        {
+            context.Budgets.Update(budget);
+            context.SaveChanges();
+        }
+        public void UpdateExpense(Expense expense)
+        {
+            context.Expense.Update(expense);
+            context.SaveChanges();
+        }
+        public void UpdateSubCategory(SubCategory subCategory)
+        {
+            context.SubCategory.Update(subCategory);
             context.SaveChanges();
         }
 
@@ -111,7 +180,12 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         }
         public void DeleteExpense(Expense expense)
         {
-            context.Expenses.Remove(expense);
+            context.Expense.Remove(expense);
+            context.SaveChanges();
+        }
+        public void DeleteSubCategory(SubCategory sub)
+        {
+            context.SubCategory.Remove(sub);
             context.SaveChanges();
         }
     }

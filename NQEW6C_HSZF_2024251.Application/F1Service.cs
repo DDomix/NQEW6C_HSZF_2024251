@@ -13,8 +13,11 @@ namespace NQEW6C_HSZF_2024251.Application
         
         List<TeamsEntity> GetTeamsEntity();
         TeamsEntity GetTeamEntityByName(string name);
-        void DeleteTeam(int id); // Új metódus a csapat törléséhez
+        string GetTeamsEntityByBudgetId(Budget budget);
+        void DeleteTeam(int id);
+        void UpdateTeam(int id);
         void AddOrUpdateTeam(TeamsEntity team);
+        void AddOrUpdateBudget(Budget budget);
 
         TeamsEntity GetTeamEntityByExactName(string name);
 
@@ -26,12 +29,11 @@ namespace NQEW6C_HSZF_2024251.Application
 
         List<TeamsEntity> GetTeamsByConstructorTitles(int titleCount);
 
-        void DeleteTeamDataBase(List<TeamsEntity> teamslist);
-        void DeleteBudgetDataBase(List<Budget> budgets);
-        void DeleteExpenseDataBase(List<Expense> expenses);
         List<Expense> GetExpensesEntities();
 
         List<Budget> GetBudgetEntities();
+
+        void UpdateBudget(int id);
     }
 
     public class F1Service : IF1Service
@@ -51,6 +53,14 @@ namespace NQEW6C_HSZF_2024251.Application
         public List<TeamsEntity> GetTeamsEntity()
         {
             return dataProvider.GetTeamEntities();
+        }
+
+        public string GetTeamsEntityByBudgetId(Budget budget)
+        {
+            var team = dataProvider.GetTeamEntities()
+                .Where(x => x.BudgetId == budget.Id)
+                .FirstOrDefault();
+            return team?.TeamName;
         }
 
         public TeamsEntity GetTeamEntityByName(string name)
@@ -81,6 +91,10 @@ namespace NQEW6C_HSZF_2024251.Application
         {
             dataProvider.AddOrUpdateTeam(team);
         }
+        public void AddOrUpdateBudget(Budget budget)
+        {
+            dataProvider.AddOrUpdateBudget(budget);
+        }
 
         public List<TeamsEntity> GetTeamsByPrincipal(string principalName)
         {
@@ -100,6 +114,15 @@ namespace NQEW6C_HSZF_2024251.Application
         {
             return dataProvider.GetBudgetEntities();
         }
+
+        public void UpdateBudget(int id)
+        {
+            var bud = dataProvider.GetBudgetEntityById(id);
+            if (bud!=null)
+            {
+                dataProvider.UpdateBudget(bud);
+            }
+        }
         public List<Expense> GetExpensesEntities()
         {
             return dataProvider.GetExpeseEntities();
@@ -112,30 +135,6 @@ namespace NQEW6C_HSZF_2024251.Application
                 dataProvider.DeleteTeam(team);
             }
         }
-
-        public void DeleteTeamDataBase(List<TeamsEntity> teamslist)
-        {
-            foreach (var team in teamslist) 
-            {
-                dataProvider.DeleteTeam(team);
-            }
-        }
-
-        public void DeleteBudgetDataBase(List<Budget> budgets)
-        {
-            foreach (var budget in budgets)
-            {
-                dataProvider.DeleteBudget(budget);
-            }
-        }
-        public void DeleteExpenseDataBase(List<Expense> expenses)
-        {
-            foreach (var exp in expenses)
-            {
-                dataProvider.DeleteExpense(exp);
-            }
-        }
-
         public void UpdateTeam(int id)
         {
             var team = dataProvider.GetTeamsEntityById(id);

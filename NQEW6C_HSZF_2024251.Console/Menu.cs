@@ -1,4 +1,5 @@
-﻿using NQEW6C_HSZF_2024251.Persistence.MsSql;
+﻿using NQEW6C_HSZF_2024251.Model;
+using NQEW6C_HSZF_2024251.Persistence.MsSql;
 
 namespace NQEW6C_HSZF_2024251.Application
 {
@@ -134,9 +135,11 @@ namespace NQEW6C_HSZF_2024251.Application
             {
                 Console.Clear();
                 Console.WriteLine("Adminisztrációs menü:");
-                Console.WriteLine("1. Csapatok frissítése");
-                Console.WriteLine("2. Csapatok törlése");
-                Console.WriteLine("3. Adatbázis törlése törlése");
+                Console.WriteLine("1. Csapat hozzáadása");
+                Console.WriteLine("2. Csapatok frissítése");
+                Console.WriteLine("3. Csapatok törlése");
+                Console.WriteLine("4. Budget hozzáadása");
+                Console.WriteLine("5. Budget frissítése");
                 Console.WriteLine("ESC: Vissza a főmenübe");
                 Console.Write("Kérjük, válasszon egy opciót (1, 2 vagy ESC): ");
         
@@ -146,15 +149,23 @@ namespace NQEW6C_HSZF_2024251.Application
                 {
                     case ConsoleKey.D1:
                     case ConsoleKey.NumPad1:
-                        await UpdateTeamAsync();
+                        await AddTeamAsync();
                         break;
                     case ConsoleKey.D2:
                     case ConsoleKey.NumPad2:
-                        DeleteTeamAsync();
+                        await UpdateTeamAsync();
                         break;
                     case ConsoleKey.D3:
                     case ConsoleKey.NumPad3:
-                        DeleteDataBaseAsync();
+                        DeleteTeamAsync();
+                        break;
+                    case ConsoleKey.D4:
+                    case ConsoleKey.NumPad4:
+                        AddBudgetAsync();
+                        break;
+                    case ConsoleKey.D5:
+                    case ConsoleKey.NumPad5:
+                        UpdateBudgetAsync();
                         break;
                     case ConsoleKey.Escape:
                         backToMainMenu = true;
@@ -163,6 +174,137 @@ namespace NQEW6C_HSZF_2024251.Application
                         Console.WriteLine("Érvénytelen választás. Kérjük, próbálja újra.");
                         break;
                 }
+            }
+        }
+
+        private async Task AddTeamAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("Új csapat hozzáadása:");
+
+            try
+            {
+                // Csapat adatok bekérése a felhasználótól
+                Console.Write("Csapat neve: ");
+                string teamName = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(teamName))
+                {
+                    Console.WriteLine("A csapat neve nem lehet üres. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                Console.Write("Alapítás éve: ");
+                if (!int.TryParse(Console.ReadLine(), out int year) || year <= 0)
+                {
+                    Console.WriteLine("Érvénytelen év. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                Console.Write("Székhely: ");
+                string headquarters = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(headquarters))
+                {
+                    Console.WriteLine("A székhely nem lehet üres. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                Console.Write("Csapatfőnök neve: ");
+                string teamPrincipal = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(teamPrincipal))
+                {
+                    Console.WriteLine("A csapatfőnök neve nem lehet üres. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                Console.Write("Konstruktor bajnoki címek száma: ");
+                if (!int.TryParse(Console.ReadLine(), out int constructorsChampionshipWins) || constructorsChampionshipWins < 0)
+                {
+                    Console.WriteLine("Érvénytelen bajnoki cím szám. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                // Költségvetési ID bekérése vagy létrehozása
+                Console.Write("Költségvetési ID: ");
+                int budgetId;
+                
+                Console.WriteLine("Érvénytelen költségvetési ID. Új költségvetés létrehozása...");
+                var newBudget = await AddBudgetAsync();
+                if (newBudget == null)
+                {
+                    Console.WriteLine("Költségvetés létrehozása sikertelen. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+                budgetId = newBudget.Id;
+                
+
+                // Új csapat létrehozása
+                var newTeam = new TeamsEntity
+                {
+                    TeamName = teamName,
+                    Year = year,
+                    HeadQuarters = headquarters,
+                    TeamPrincipal = teamPrincipal,
+                    ConstructorsChampionshipWins = constructorsChampionshipWins,
+                    BudgetId = budgetId
+                };
+
+                // Csapat mentése az adatbázisba
+                _service.AddOrUpdateTeam(newTeam);
+
+                Console.WriteLine("Az új csapat sikeresen hozzáadva.");
+                Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hiba történt a csapat hozzáadása során: {ex.Message}");
+                Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                Console.ReadKey();
+            }
+        }
+
+        private async Task<Budget> AddBudgetAsync()
+        {
+            Console.Clear();
+            Console.WriteLine("Új költségvetés létrehozása:");
+
+            try
+            {
+                Console.Write("Teljes költségvetés (összeg): ");
+                if (!int.TryParse(Console.ReadLine(), out int totalBudget) || totalBudget <= 0)
+                {
+                    Console.WriteLine("Érvénytelen összeg. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return null;
+                }
+
+                // Új költségvetés létrehozása
+                var newBudget = new Budget
+                {
+                    TotalBudget = totalBudget
+                };
+
+                // Költségvetés mentése az adatbázisba
+                _service.AddOrUpdateBudget(newBudget);
+
+                Console.WriteLine("Az új költségvetés sikeresen létrehozva.");
+                Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                Console.ReadKey();
+
+                return newBudget;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hiba történt a költségvetés létrehozása során: {ex.Message}");
+                Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                Console.ReadKey();
+                return null;
             }
         }
 
@@ -222,27 +364,71 @@ namespace NQEW6C_HSZF_2024251.Application
         }
 
 
-        private void DeleteDataBaseAsync()
+        private async Task UpdateBudgetAsync()
         {
             Console.Clear();
-            Console.WriteLine("Adatbázis törlése");
-            Console.Write("Biztosan törli az adatbázis minden adatát? (i/n): ");
-            if (Console.ReadLine().Trim().ToLower() == "i")
+            Console.WriteLine("Budget frissítése:");
+
+            try
             {
-                var teamdata = _service.GetTeamsEntity();
-                var budgetdata = _service.GetBudgetEntities();
-                var expensedata = _service.GetExpensesEntities();
-                
-                _service.DeleteTeamDataBase(teamdata);
-                _service.DeleteBudgetDataBase(budgetdata);
-                _service.DeleteExpenseDataBase(expensedata);
-                Console.WriteLine("Adatbázis sikeresen törölve.");
+                // A meglévő Budget entitások listázása
+                var budgets = _service.GetBudgetEntities();
+                if (budgets == null || !budgets.Any())
+                {
+                    Console.WriteLine("Nincs elérhető budget az adatbázisban.");
+                    Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                Console.WriteLine("Elérhető budgetek:");
+                foreach (var budget in budgets)
+                {
+                    Console.WriteLine($"ID: {budget.Id}, Csapat név: {_service.GetTeamsEntityByBudgetId(budget)}  Összeg: {budget.TotalBudget}");
+                }
+
+                // Budget kiválasztása frissítéshez
+                Console.Write("Adja meg a frissíteni kívánt Budget ID-ját: ");
+                if (!int.TryParse(Console.ReadLine(), out int budgetId))
+                {
+                    Console.WriteLine("Érvénytelen ID. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                var selectedBudget = budgets.FirstOrDefault(b => b.Id == budgetId);
+                if (selectedBudget == null)
+                {
+                    Console.WriteLine("Nem található a megadott ID-val Budget. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                // Új összeg megadása
+                Console.Write($"Adja meg az új összeget (jelenlegi: {selectedBudget.TotalBudget}): ");
+                if (!int.TryParse(Console.ReadLine(), out int newTotalBudget) || newTotalBudget <= 0)
+                {
+                    Console.WriteLine("Érvénytelen összeg. Nyomjon meg egy gombot a folytatáshoz...");
+                    Console.ReadKey();
+                    return;
+                }
+
+                // Budget frissítése
+                selectedBudget.TotalBudget = newTotalBudget;
+                _service.UpdateBudget(selectedBudget.Id);
+
+                Console.WriteLine("A budget sikeresen frissítve.");
+                Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                Console.ReadKey();
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Az adatbázis törlése megszakítva.");
+                Console.WriteLine($"Hiba történt a budget frissítése során: {ex.Message}");
+                Console.WriteLine("Nyomjon meg egy gombot a folytatáshoz...");
+                Console.ReadKey();
             }
         }
+
         private async Task UpdateTeamAsync()
         {
             Console.Clear();
@@ -454,6 +640,7 @@ namespace NQEW6C_HSZF_2024251.Application
                 if (team != null)
                 {
                     _toConsole.Display(team);
+                    
                 }
                 else
                 {

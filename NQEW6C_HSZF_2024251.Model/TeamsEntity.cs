@@ -20,11 +20,11 @@ namespace NQEW6C_HSZF_2024251.Model
         public int ConstructorsChampionshipWins { get; set; }
         public int BudgetId { get; set; }
 
-        // Navigation Property to Budget
+        
         [ForeignKey("BudgetId")]
         public virtual Budget Budget { get; set; }
 
-        // Konstruktor
+        
         public TeamsEntity()
         {
             
@@ -39,10 +39,9 @@ namespace NQEW6C_HSZF_2024251.Model
         public int TotalBudget { get; set; }
         public virtual ICollection<Expense> Expenses { get; set; }
 
-        // Konstruktor
         public Budget()
         {
-            Expenses = new HashSet<Expense>(); // Inicializálja az Expenses listát
+            Expenses = new HashSet<Expense>();
         }
     }
 
@@ -50,17 +49,21 @@ namespace NQEW6C_HSZF_2024251.Model
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public string Category { get; set; }
         public int Amount { get; set; }
         public string ApprovalStatus { get; set; }
         public DateTime ExpenseDate { get; set; }
+
+        public int BudgetId { get; set; }
+
+        [ForeignKey("BudgetId")]
+        public virtual Budget Budget { get; set; }
         public virtual ICollection<SubCategory> SubCategory { get; set; }
 
-        // Konstruktor
         public Expense()
         {
-            SubCategory = new HashSet<SubCategory>(); // Inicializálja a SubCategory listát
+            SubCategory = new HashSet<SubCategory>(); 
         }
     }
 
@@ -72,7 +75,6 @@ namespace NQEW6C_HSZF_2024251.Model
         public string Name { get; set; }
         public int Amount { get; set; }
 
-        // Konstruktor (Ebben az osztályban nem szükséges, mert nincs lista)
         public SubCategory() { }
     }
 

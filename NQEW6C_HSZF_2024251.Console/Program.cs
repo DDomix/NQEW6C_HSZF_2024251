@@ -14,21 +14,21 @@ namespace NQEW6C_HSZF_2024251
             Console.WriteLine("Starting Application...");
 
             var host = Host.CreateDefaultBuilder()
-    .ConfigureServices((hostContext, services) =>
-    {
-        // Register DbContext
-        services.AddDbContext<AppDBContext>();
+                       .ConfigureServices((hostContext, services) =>
+                       {
+                           // Register DbContext
+                           services.AddDbContext<AppDBContext>();
 
-        // Register the data provider and service using the interfaces
-        services.AddScoped<IF1DataProvider, F1DataProvider>();
-        services.AddScoped<IF1Service, F1Service>();
+                           // Register the data provider and service using the interfaces
+                           services.AddScoped<IF1DataProvider, F1DataProvider>();
+                           services.AddScoped<IF1Service, F1Service>();
 
-        // Register additional dependencies
-        services.AddTransient<DatabaseSeeder>();
-        services.AddTransient<Menu>();
-        services.AddTransient<ToConsole>();
-    })
-    .Build();
+                           // Register additional dependencies
+                           services.AddTransient<DatabaseSeeder>();
+                           services.AddTransient<Menu>();
+                           services.AddTransient<ToConsole>();
+                       })
+                       .Build();
 
 
 

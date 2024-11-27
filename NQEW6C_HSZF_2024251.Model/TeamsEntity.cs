@@ -75,6 +75,11 @@ namespace NQEW6C_HSZF_2024251.Model
         public string Name { get; set; }
         public int Amount { get; set; }
 
+        public int? ExpenseId { get; set; }
+        [ForeignKey("ExpenseId")]
+
+        public virtual Expense Expense { get; set; }
+
         public SubCategory() { }
     }
 

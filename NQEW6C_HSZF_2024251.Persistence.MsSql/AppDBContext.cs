@@ -23,6 +23,7 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
         public AppDBContext()
         {
+            Database.EnsureDeleted();
             Database.EnsureCreated();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -76,8 +76,6 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                                .ThenInclude(e => e.SubCategory)
                                .FirstOrDefault(t => t.TeamName == team.TeamName && t.Year == team.Year);
 
-            
-            
             foreach (var expense in team.Budget.Expenses)
             {
                 var existingExpense = existingTeam.Budget.Expenses
@@ -112,16 +110,20 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                             existingSubCategory.Amount = subCategory.Amount;
                             UpdateSubCategory(existingSubCategory);
                         }
+
+                        existingExpense.Amount += subCategory.Amount;
                     }
 
-                    existingExpense.Amount += expense.Amount;
+                    
+                    existingExpense.Amount = existingExpense.SubCategory.Sum(sc => sc.Amount);
                     UpdateExpense(existingExpense);
                 }
             }
 
             UpdateTeam(existingTeam);
-            
         }
+
+
 
         public void AddOrUpdateBudget(Budget budget)
         {
@@ -173,26 +175,28 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                         {
                             foreach (var newSubCategory in newExpense.SubCategory)
                             {
-                                if (existingExpense.SubCategory.All(sc => sc.Name != newSubCategory.Name))
-                                {
-                                    newSubCategory.ExpenseId = existingExpense.Id;
-                                    existingExpense.SubCategory.Add(newSubCategory);
-                                }
+                                var existingSubCategory = existingExpense.SubCategory
+                                    .FirstOrDefault(sc => sc.Name == newSubCategory.Name);
 
-                                existingExpense.Amount += newSubCategory.Amount;
+                                if (existingSubCategory == null)
+                                {
+                                    existingExpense.SubCategory.Add(newSubCategory);
+                                    newSubCategory.ExpenseId = existingExpense.Id;
+                                    existingExpense.Amount += newSubCategory.Amount;
+                                }
+                                else
+                                {
+                                    existingSubCategory.Amount = newSubCategory.Amount;
+                                    UpdateSubCategory(existingSubCategory);
+                                }
                             }
                         }
-
-                        if (newExpense.Amount > 0)
-                        {
-                            existingExpense.Amount += newExpense.Amount;
-                        }
+                        existingExpense.Amount = existingExpense.SubCategory.Sum(sc => sc.Amount);
+                        UpdateExpense(existingExpense);
                     }
                 }
             }
         }
-
-
 
         public List<Budget> GetBudgetEntities()
         {

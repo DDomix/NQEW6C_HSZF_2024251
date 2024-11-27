@@ -64,7 +64,6 @@ public class DatabaseSeeder
 
             }
         }
-
         OnDataSeeded("Az adatbázis frissítése sikeresen megtörtént.");
     }
 

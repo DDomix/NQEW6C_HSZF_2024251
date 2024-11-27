@@ -12,7 +12,7 @@ namespace NQEW6C_HSZF_2024251.Model
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public string TeamName { get; set; }
         public int Year { get; set; }
         public string HeadQuarters { get; set; }
@@ -36,7 +36,7 @@ namespace NQEW6C_HSZF_2024251.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int TotalBudget { get; set; }
+        public int? TotalBudget { get; set; }
         public virtual ICollection<Expense> Expenses { get; set; }
 
         public Budget()
@@ -52,7 +52,7 @@ namespace NQEW6C_HSZF_2024251.Model
         public int Id { get; set; }
         public string Category { get; set; }
         public int Amount { get; set; }
-        public string ApprovalStatus { get; set; }
+        public string? ApprovalStatus { get; set; }
         public DateTime ExpenseDate { get; set; }
 
         public int BudgetId { get; set; }
@@ -74,6 +74,10 @@ namespace NQEW6C_HSZF_2024251.Model
         public int? Id { get; set; }
         public string Name { get; set; }
         public int Amount { get; set; }
+
+        public int ExpenseId { get; set; }
+        [ForeignKey("ExpenseId")]
+        public virtual Expense Expense { get; set; }
 
         public SubCategory() { }
     }

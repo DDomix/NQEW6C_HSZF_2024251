@@ -22,7 +22,17 @@ public class DatabaseSeeder
         }
 
         var jsonData = await File.ReadAllTextAsync(filePath);
-        var teams = JsonConvert.DeserializeObject<List<TeamsEntity>>(jsonData);
+
+        List<TeamsEntity> teams;
+        if (jsonData.TrimStart().StartsWith("["))
+        {
+            teams = JsonConvert.DeserializeObject<List<TeamsEntity>>(jsonData);
+        }
+        else
+        {
+            var singleTeam = JsonConvert.DeserializeObject<TeamsEntity>(jsonData);
+            teams = singleTeam != null ? new List<TeamsEntity> { singleTeam } : new List<TeamsEntity>();
+        }
 
         if (teams == null || !teams.Any())
         {
@@ -32,17 +42,26 @@ public class DatabaseSeeder
 
         foreach (var team in teams)
         {
-            var existingTeam = _provider.GetTeamEntities().FirstOrDefault(x => x.TeamName.Equals(team.TeamName));
+            var existingTeam = _provider.GetTeamEntities().FirstOrDefault(x => x.TeamName.Equals(team.TeamName) && x.Year == team.Year);
 
             if (existingTeam == null)
             {
-                _provider.AddOrUpdateTeam(team);
-                OnDataSeeded($"Új csapat hozzáadva: {team.TeamName}");
+                _provider.AddTeam(team);
+                OnDataSeeded($"Új csapat hozzáadva: {team.TeamName} ({team.Year})");
             }
             else
             {
-                _provider.AddOrUpdateTeam(team);
-                OnDataSeeded($"Létező csapat frissítve: {team.TeamName}");
+                try
+                {
+                    _provider.MergeTeamData(existingTeam, team);
+                    _provider.UpdateTeamFromJson(existingTeam);
+                    OnDataSeeded($"Létező csapat frissítve: {team.TeamName} ({team.Year})");
+                }
+                catch (Exception ex)
+                {
+                    OnDataSeeded($"Hiba történt: {ex.Message} - Inner Exception: {ex.InnerException?.Message}");
+                }
+
             }
         }
 

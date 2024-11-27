@@ -98,7 +98,7 @@ namespace NQEW6C_HSZF_2024251.Application
 
         public void AddOrUpdateTeam(TeamsEntity team)
         {
-            dataProvider.AddOrUpdateTeam(team);
+            dataProvider.UpdateTeamFromJson(team);
         }
         public void AddOrUpdateBudget(Budget budget)
         {

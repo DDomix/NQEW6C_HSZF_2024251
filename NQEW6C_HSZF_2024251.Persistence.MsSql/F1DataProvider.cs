@@ -22,9 +22,9 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         void UpdateBudget(Budget budget);
         void UpdateExpense(Expense expense);
         void UpdateSubCategory(SubCategory subCategory);
-        void DeleteTeam(TeamsEntity team); // Új metódus a csapat törléséhez
+        void DeleteTeam(TeamsEntity team);
 
-        void AddOrUpdateTeam(TeamsEntity team);
+        void UpdateTeamFromJson(TeamsEntity team);
         void AddOrUpdateBudget(Budget budget);
 
         List<Budget> GetBudgetEntities();
@@ -35,6 +35,8 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
         void DeleteSubCategory(SubCategory sub);
         List<Expense> GetExpeseEntities();
+
+        void MergeTeamData(TeamsEntity existingTeam, TeamsEntity newTeam);
     }
 
     public class F1DataProvider : IF1DataProvider
@@ -66,51 +68,59 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
             return context.Budgets.FirstOrDefault(x => x.Id == id);
         }
 
-        public void AddOrUpdateTeam(TeamsEntity team)
+        public void UpdateTeamFromJson(TeamsEntity team)
         {
             var existingTeam = context.Teams
-                .Include(t => t.Budget)
-                .ThenInclude(b => b.Expenses)
-                .ThenInclude(e => e.SubCategory)
-                .FirstOrDefault(t => t.TeamName == team.TeamName && t.Year == team.Year);
+                               .Include(t => t.Budget)
+                               .ThenInclude(b => b.Expenses)
+                               .ThenInclude(e => e.SubCategory)
+                               .FirstOrDefault(t => t.TeamName == team.TeamName && t.Year == team.Year);
 
-            if (existingTeam == null)
+            
+            
+            foreach (var expense in team.Budget.Expenses)
             {
-                AddTeam(team);
-            }
-            else
-            {
-                foreach (var expense in team.Budget.Expenses)
+                var existingExpense = existingTeam.Budget.Expenses
+                    .FirstOrDefault(e => e.Category == expense.Category && e.ExpenseDate == expense.ExpenseDate);
+
+                if (existingExpense == null)
                 {
-                    var existingExpense = existingTeam.Budget.Expenses
-                        .FirstOrDefault(e => e.Category == expense.Category && e.ExpenseDate == expense.ExpenseDate);
+                    existingTeam.Budget.Expenses.Add(expense);
+                    AddExpense(expense);
 
-                    if (existingExpense == null)
+                    foreach (var subCategory in expense.SubCategory)
                     {
-                        existingTeam.Budget.Expenses.Add(expense);
-                        context.Entry(expense).State = EntityState.Added;
-                    }
-                    else
-                    {
-                        foreach (var subCategory in expense.SubCategory)
-                        {
-                            var existingSubCategory = existingExpense.SubCategory
-                                .FirstOrDefault(sc => sc.Name == subCategory.Name);
-
-                            if (existingSubCategory == null)
-                            {
-                                existingExpense.SubCategory.Add(subCategory);
-                                context.Entry(subCategory).State = EntityState.Added;
-                            }
-                            else
-                            {
-                                existingSubCategory.Amount = subCategory.Amount;
-                            }
-                        }
+                        subCategory.Expense = expense;
+                        AddSubCategory(subCategory);
                     }
                 }
-                UpdateTeam(existingTeam);
+                else
+                {
+                    foreach (var subCategory in expense.SubCategory)
+                    {
+                        var existingSubCategory = existingExpense.SubCategory
+                            .FirstOrDefault(sc => sc.Name == subCategory.Name);
+
+                        if (existingSubCategory == null)
+                        {
+                            existingExpense.SubCategory.Add(subCategory);
+                            subCategory.Expense = existingExpense;
+                            AddSubCategory(subCategory);
+                        }
+                        else
+                        {
+                            existingSubCategory.Amount = subCategory.Amount;
+                            UpdateSubCategory(existingSubCategory);
+                        }
+                    }
+
+                    existingExpense.Amount += expense.Amount;
+                    UpdateExpense(existingExpense);
+                }
             }
+
+            UpdateTeam(existingTeam);
+            
         }
 
         public void AddOrUpdateBudget(Budget budget)
@@ -131,6 +141,57 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                 UpdateBudget(existingBudget);
             }
         }
+
+        public void MergeTeamData(TeamsEntity existingTeam, TeamsEntity newTeam)
+        {
+            if (newTeam.Budget?.Expenses != null)
+            {
+                foreach (var newExpense in newTeam.Budget.Expenses)
+                {
+                    var existingExpense = existingTeam.Budget.Expenses
+                        .FirstOrDefault(e => e.Category == newExpense.Category);
+
+                    if (existingExpense == null)
+                    {
+                        newExpense.BudgetId = existingTeam.Budget.Id;
+
+                        if (string.IsNullOrEmpty(newExpense.ApprovalStatus))
+                        {
+                            newExpense.ApprovalStatus = "Pending";
+                        }
+
+                        if (newExpense.SubCategory != null)
+                        {
+                            newExpense.Amount = newExpense.SubCategory.Sum(sc => sc.Amount);
+                        }
+
+                        existingTeam.Budget.Expenses.Add(newExpense);
+                    }
+                    else
+                    {
+                        if (newExpense.SubCategory != null)
+                        {
+                            foreach (var newSubCategory in newExpense.SubCategory)
+                            {
+                                if (existingExpense.SubCategory.All(sc => sc.Name != newSubCategory.Name))
+                                {
+                                    newSubCategory.ExpenseId = existingExpense.Id;
+                                    existingExpense.SubCategory.Add(newSubCategory);
+                                }
+
+                                existingExpense.Amount += newSubCategory.Amount;
+                            }
+                        }
+
+                        if (newExpense.Amount > 0)
+                        {
+                            existingExpense.Amount += newExpense.Amount;
+                        }
+                    }
+                }
+            }
+        }
+
 
 
         public List<Budget> GetBudgetEntities()

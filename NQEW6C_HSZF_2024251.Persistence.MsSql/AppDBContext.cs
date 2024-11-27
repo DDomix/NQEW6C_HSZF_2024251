@@ -19,35 +19,14 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = F1DB; Integrated Security = True; Connect Timeout = 30; Encrypt = False; Trust Server Certificate = False; Application Intent = ReadWrite; Multi Subnet Failover = False");
+            base.OnConfiguring(optionsBuilder);
         }
 
         public AppDBContext()
         {
+            Database.EnsureDeleted();
             Database.EnsureCreated();
         }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            
-            modelBuilder.Entity<TeamsEntity>()
-                .HasOne(t => t.Budget) 
-                .WithMany()            
-                .HasForeignKey(t => t.BudgetId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            
-            modelBuilder.Entity<Expense>()
-                .HasOne(e => e.Budget) 
-                .WithMany(b => b.Expenses)
-                .HasForeignKey(e => e.BudgetId)
-                .OnDelete(DeleteBehavior.Cascade); 
-
-            
-            modelBuilder.Entity<Expense>()
-                .HasMany(e => e.SubCategory) 
-                .WithOne()                   
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+        
     }
 }

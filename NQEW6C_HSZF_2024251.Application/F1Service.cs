@@ -35,6 +35,8 @@ namespace NQEW6C_HSZF_2024251.Application
 
         List<Budget> GetBudgetEntities();
 
+        List<TeamsEntity> TeamDataForRiport(string teamName);
+
         void UpdateBudget(int id);
     }
 
@@ -46,7 +48,13 @@ namespace NQEW6C_HSZF_2024251.Application
         {
             this.dataProvider = dataProvider;
         }
-        
+
+        public List<TeamsEntity> TeamDataForRiport(string teamName)
+        {
+            return dataProvider.TeamDataForRiport(teamName);
+        }
+
+
         public TeamsEntity GetF1EntityById(int id)
         {
             return dataProvider.GetTeamsEntityById(id);

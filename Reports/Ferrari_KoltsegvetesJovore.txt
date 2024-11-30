@@ -1,0 +1,6 @@
+Csapatnév: Ferrari
+Jövő évi költségvetési becslés (kategóriánként):
+
+- Car Development: 67 924 528,30 Ft
+- Personnel: 80 327 868,85 Ft
+- Operations: 47 058 823,53 Ft

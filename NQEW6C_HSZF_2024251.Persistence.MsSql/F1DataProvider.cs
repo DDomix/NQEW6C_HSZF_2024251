@@ -35,6 +35,7 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
         void DeleteSubCategory(SubCategory sub);
         List<Expense> GetExpeseEntities();
+        List<TeamsEntity> TeamDataForRiport(string teamName);
 
         void MergeTeamData(TeamsEntity existingTeam, TeamsEntity newTeam);
     }
@@ -66,6 +67,15 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
         public Budget GetBudgetEntityById(int id)
         {
             return context.Budgets.FirstOrDefault(x => x.Id == id);
+        }
+
+        public List<TeamsEntity> TeamDataForRiport(string teamName)
+        {
+            return context.Teams
+            .Where(t => t.TeamName.Contains(teamName))
+            .OrderByDescending(t => t.Year)
+            .Take(2)
+            .ToList();
         }
 
         public void UpdateTeamFromJson(TeamsEntity team)

@@ -37,10 +37,6 @@ namespace NQEW6C_HSZF_2024251.Application
                     {
                         Console.WriteLine($"{propInfo.Name}: {budget.TotalBudget}");
                     }
-                    //else if(value is Expense expense)
-                    //{
-                    //    Console.WriteLine($"{propInfo.Name}: {expense}");
-                    //}
                     else
                     {
                         

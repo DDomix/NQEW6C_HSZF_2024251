@@ -675,7 +675,46 @@ namespace NQEW6C_HSZF_2024251.Application
         }
 
 
+        private async Task PaginatedDisplay<T>(List<T> items)
+        {
+            int pageSize = 10;
+            int currentPage = 0;
+            int totalPages = (int)Math.Ceiling((double)items.Count / pageSize);
 
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"Oldal {currentPage + 1} / {totalPages}");
+                var paginatedItems = items.Skip(currentPage * pageSize).Take(pageSize).ToList();
+
+                foreach (var item in paginatedItems)
+                {
+                    _toConsole.Display(item);
+                }
+
+                Console.WriteLine("Nyomja meg a balra lépéshez (<-), a jobbra lépéshez (->), vagy ESC a kilépéshez.");
+
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.LeftArrow)
+                {
+                    if (currentPage > 0)
+                    {
+                        currentPage--;
+                    }
+                }
+                else if (key.Key == ConsoleKey.RightArrow)
+                {
+                    if (currentPage < totalPages - 1)
+                    {
+                        currentPage++;
+                    }
+                }
+                else if (key.Key == ConsoleKey.Escape)
+                {
+                    break;
+                }
+            }
+        }
 
         private void GetTeamsByTeamPrincipal()
         {
@@ -731,7 +770,7 @@ namespace NQEW6C_HSZF_2024251.Application
         }
 
 
-        private void GetTeamsByYear()
+        private async void GetTeamsByYear()
         {
             Console.Clear();
             Console.WriteLine("Év lekérdezése:");
@@ -749,6 +788,7 @@ namespace NQEW6C_HSZF_2024251.Application
                 else
                 {
                     _toConsole.Display(yearentities);
+                    await PaginatedDisplay(yearentities);
                     Console.WriteLine("Nyomjon meg egy billentyűt a folytatáshoz...");
                     Console.ReadKey();
                 }

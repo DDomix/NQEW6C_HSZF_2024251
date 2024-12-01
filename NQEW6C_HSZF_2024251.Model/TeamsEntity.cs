@@ -15,9 +15,9 @@ namespace NQEW6C_HSZF_2024251.Model
         public int Id { get; set; }
         public string TeamName { get; set; }
         public int Year { get; set; }
-        public string HeadQuarters { get; set; }
-        public string TeamPrincipal { get; set; }
-        public int ConstructorsChampionshipWins { get; set; }
+        public string? HeadQuarters { get; set; }
+        public string? TeamPrincipal { get; set; }
+        public int? ConstructorsChampionshipWins { get; set; }
         public int BudgetId { get; set; }
 
         
@@ -51,7 +51,7 @@ namespace NQEW6C_HSZF_2024251.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Category { get; set; }
-        public int Amount { get; set; }
+        public int? Amount { get; set; }
         public string? ApprovalStatus { get; set; }
         public DateTime ExpenseDate { get; set; }
 

@@ -18,9 +18,11 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = F1DB; Integrated Security = True; Connect Timeout = 30; Encrypt = False; Trust Server Certificate = False; Application Intent = ReadWrite; Multi Subnet Failover = False");
+            string connStr = @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=F1DB ;Integrated Security=True;MultipleActiveResultSets=true";
+            optionsBuilder.UseSqlServer(connStr);
             base.OnConfiguring(optionsBuilder);
         }
+
 
         public AppDBContext()
         {

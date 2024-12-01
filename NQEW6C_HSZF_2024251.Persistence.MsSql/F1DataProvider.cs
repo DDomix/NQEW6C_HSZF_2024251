@@ -124,7 +124,6 @@ namespace NQEW6C_HSZF_2024251.Persistence.MsSql
                         existingExpense.Amount += subCategory.Amount;
                     }
 
-                    
                     existingExpense.Amount = existingExpense.SubCategory.Sum(sc => sc.Amount);
                     UpdateExpense(existingExpense);
                 }

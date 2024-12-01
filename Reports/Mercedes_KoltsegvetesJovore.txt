@@ -1,0 +1,6 @@
+Csapatnév: Mercedes
+Jövő évi költségvetési becslés (kategóriánként):
+
+- Car Development: 50 000 000,00 Ft
+- Personnel: 60 000 000,00 Ft
+- Operations: 35 000 000,00 Ft
